@@ -16,7 +16,7 @@
 """
 import numpy as np
 import tensorflow as tf
-import tf_extended as tfe
+# import tf_extended as tfe
 
 
 # =========================================================================== #
@@ -273,10 +273,10 @@ def tf_ssd_bboxes_select_layer(predictions_layer, localizations_layer,
     with tf.name_scope(scope, 'ssd_bboxes_select_layer',
                        [predictions_layer, localizations_layer]):
         # Reshape features: Batches x N x N_labels | 4
-        p_shape = tfe.get_shape(predictions_layer)
+        p_shape = tf.get_shape(predictions_layer)
         predictions_layer = tf.reshape(predictions_layer,
                                        tf.stack([p_shape[0], -1, p_shape[-1]]))
-        l_shape = tfe.get_shape(localizations_layer)
+        l_shape = tf.get_shape(localizations_layer)
         localizations_layer = tf.reshape(localizations_layer,
                                          tf.stack([l_shape[0], -1, l_shape[-1]]))
 
@@ -350,10 +350,10 @@ def tf_ssd_bboxes_select_layer_all_classes(predictions_layer, localizations_laye
       classes, scores, bboxes: Input Tensors.
      """
     # Reshape features: Batches x N x N_labels | 4
-    p_shape = tfe.get_shape(predictions_layer)
+    p_shape = tf.get_shape(predictions_layer)
     predictions_layer = tf.reshape(predictions_layer,
                                    tf.stack([p_shape[0], -1, p_shape[-1]]))
-    l_shape = tfe.get_shape(localizations_layer)
+    l_shape = tf.get_shape(localizations_layer)
     localizations_layer = tf.reshape(localizations_layer,
                                      tf.stack([l_shape[0], -1, l_shape[-1]]))
     # Boxes selection: use threshold or score > no-label criteria.

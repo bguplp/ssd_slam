@@ -10,6 +10,7 @@ import cv2
 from cv_bridge import CvBridge, CvBridgeError
 import rospy
 from sensor_msgs.msg import Image
+from sensor_msgs.msg import CompressedImage
 
 slim = tf.contrib.slim
 
@@ -42,7 +43,7 @@ cam = cv2.VideoCapture(0)
 cv_img = 0
 
 def img_callback (ros_img):
-    print ('got an image')
+    #print ('got an image')
     global bridge, cv_img
     try: 
         cv_img = bridge.imgmsg_to_cv2(ros_img,"rgb8")
@@ -52,9 +53,10 @@ def img_callback (ros_img):
 bridge = CvBridge()
 
 rospy.init_node('img', anonymous = True)
-img_sub = rospy.Subscriber('camera/image_raw/', Image, img_callback)
-ros_img = rospy.wait_for_message('camera/image_raw/', Image)
-
+pub_detections = rospy.Publisher('/ssd/results/compressed/', CompressedImage, queue_size=2)
+img_sub = rospy.Subscriber('/kinect2/qhd/image_color_rect', Image, img_callback)
+ros_img = rospy.wait_for_message('/kinect2/qhd/image_color_rect', Image)
+print ('got an image')
 while not rospy.is_shutdown():
     #ret_val, img = cam.read()
     global cv_img
@@ -85,11 +87,16 @@ while not rospy.is_shutdown():
                     fontScale,
                     fontColor,
                     lineType)
-           
-    cv2.imshow('ssd300', img)
+    
+    msg = CompressedImage()
+    msg.header.stamp = rospy.Time.now()
+    msg.format = "jpeg"
+    msg.data = np.array(cv2.imencode('.jpg', img)[1]).tostring()
+    pub_detections.publish(msg)        
+    # cv2.imshow('ssd300', img)
 
     
-    if cv2.waitKey(1) == 27: 
-        cam.release()
-        cv2.destroyAllWindows()
-        break  # esc to quit
+    # if cv2.waitKey(1) == 27: 
+    #     cam.release()
+    #     cv2.destroyAllWindows()
+    #     break  # esc to quit

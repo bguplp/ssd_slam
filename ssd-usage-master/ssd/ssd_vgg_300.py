@@ -54,7 +54,7 @@ from collections import namedtuple
 import numpy as np
 import tensorflow as tf
 
-import tf_extended as tfe
+# import tf_extended as tfe
 import custom_layers
 import ssd_common
 
@@ -220,14 +220,14 @@ class SSDNet(object):
                                             select_threshold=select_threshold,
                                             num_classes=self.params.num_classes)
         rscores, rbboxes = \
-            tfe.bboxes_sort(rscores, rbboxes, top_k=top_k)
+            tf.bboxes_sort(rscores, rbboxes, top_k=top_k)
         # Apply NMS algorithm.
         rscores, rbboxes = \
-            tfe.bboxes_nms_batch(rscores, rbboxes,
+            tf.bboxes_nms_batch(rscores, rbboxes,
                                  nms_threshold=nms_threshold,
                                  keep_top_k=keep_top_k)
         if clipping_bbox is not None:
-            rbboxes = tfe.bboxes_clip(clipping_bbox, rbboxes)
+            rbboxes = tf.bboxes_clip(clipping_bbox, rbboxes)
         return rscores, rbboxes
 
     def losses(self, logits, localisations,
@@ -584,7 +584,7 @@ def ssd_losses(logits, localisations,
                device='/cpu:0',
                scope=None):
     with tf.name_scope(scope, 'ssd_losses'):
-        lshape = tfe.get_shape(logits[0], 5)
+        lshape = tf.get_shape(logits[0], 5)
         num_classes = lshape[-1]
         batch_size = lshape[0]
 
@@ -685,7 +685,7 @@ def ssd_losses_old(logits, localisations,
                 dtype = logits[i].dtype
                 with tf.name_scope('block_%i' % i):
                     # Sizing weight...
-                    wsize = tfe.get_shape(logits[i], rank=5)
+                    wsize = tf.get_shape(logits[i], rank=5)
                     wsize = wsize[1] * wsize[2] * wsize[3]
 
                     # Positive mask.
