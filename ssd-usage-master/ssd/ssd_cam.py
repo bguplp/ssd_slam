@@ -19,18 +19,20 @@ import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 
 import sys
-sys.path.append('../')
-sys.path.insert(0, '/home/lab/Downloads/ssd-usage-master/ssd')
+from pathlib import Path
+# sys.path.append('../')
+# sys.path.insert(0, '/home/lab/Downloads/ssd-usage-master/ssd')
 #from ssd 
 import ssd_wrapper
+path_to_model = str(Path(__file__).parent.parent)
+labels = pd.read_csv(path_to_model+'/model/labels.txt')
+
 # TensorFlow session: grow memory when needed. TF, DO NOT USE ALL MY GPU MEMORY!!!
 gpu_options = tf.GPUOptions(allow_growth=True)
 config = tf.ConfigProto(log_device_placement=False, gpu_options=gpu_options)
 
 ssd = ssd_wrapper.ssdWrapper(config = config)
 
-
-labels = pd.read_csv('../model/labels.txt')
 colors = dict()
 for cls_id in range(len(np.array(labels))):
     colors[cls_id] = (int(random.random()*255), int(random.random()*255), int(random.random()*255))
@@ -46,7 +48,7 @@ def img_callback (ros_img):
     #print ('got an image')
     global bridge, cv_img
     try: 
-        cv_img = bridge.imgmsg_to_cv2(ros_img,"rgb8")
+        cv_img = bridge.imgmsg_to_cv2(ros_img,"bgr8")
     except CvBridgeError as e:
         print (e)
 
